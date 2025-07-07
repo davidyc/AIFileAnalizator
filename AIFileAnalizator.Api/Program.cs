@@ -95,10 +95,4 @@ app.MapPost("/rag/upload", async (HttpRequest request, IRagService ragService) =
         return Results.Problem(ex.Message);
     }
 });
-
-
-
-
-
-
 app.Run();

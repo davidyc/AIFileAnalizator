@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './OllamaChat.css';
+import { API_BASE } from './config';
 
 function OllamaChat() {
   const [prompt, setPrompt] = useState('');
@@ -27,7 +28,7 @@ function OllamaChat() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:5117/ask', {
+      const res = await fetch(`${API_BASE}/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
@@ -68,7 +69,7 @@ function OllamaChat() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:5117/upload', {
+      const res = await fetch(`${API_BASE}/upload`, {
         method: 'POST',
         body: formData,
       });

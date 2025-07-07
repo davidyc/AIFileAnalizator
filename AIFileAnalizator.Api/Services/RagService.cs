@@ -2,7 +2,6 @@
 using AIFileAnalizator.Api.Helpers;
 using AIFileAnalizator.Api.Options;
 using AIFileAnalizator.Api.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;

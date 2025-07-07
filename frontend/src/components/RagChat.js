@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { API_BASE } from './config';
 
 const RagChat = () => {
   const [text, setText] = useState('');
@@ -19,7 +20,7 @@ const RagChat = () => {
       setMessages((prev) => [...prev, userMessage]);
 
       try {
-        const res = await fetch('http://localhost:5117/rag/ask', {
+        const res = await fetch(`${API_BASE}/rag/ask`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: text }),
@@ -37,7 +38,7 @@ const RagChat = () => {
       }
     } else {
       try {
-        const res = await fetch('http://localhost:5117/rag/chunk', {
+        const res = await fetch(`${API_BASE}/rag/chunk`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text, id: chunkId || null }),
@@ -72,7 +73,7 @@ const RagChat = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('http://localhost:5117/rag/upload', {
+      const res = await fetch(`${API_BASE}/rag/upload`, {
         method: 'POST',
         body: formData,
       });
