@@ -1,0 +1,71 @@
+.rag-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background: #fdfdfd;
+  color: #3b7acb;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+textarea {
+  resize: vertical;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  min-height: 80px;
+}
+
+button {
+  align-self: flex-start;
+  padding: 0.6rem 1rem;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: #3b7acb;
+}
+
+button:disabled {
+  background-color: #b0c6e7;
+  cursor: not-allowed;
+}
+
+.response-box {
+  white-space: pre-wrap;
+  background-color: #f1f5ff;
+  border-left: 4px solid #4a90e2;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+.error-message {
+  padding: 0.75rem;
+  border: 1px solid #e53935;
+  background-color: #ffeaea;
+  color: #b71c1c;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

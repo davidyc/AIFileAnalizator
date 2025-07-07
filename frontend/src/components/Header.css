@@ -1,0 +1,27 @@
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #3b7acb;
+  color: white;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #2e5ea0;
+}
+
+.app-logo {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.app-nav .nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.app-nav .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
