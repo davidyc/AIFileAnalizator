@@ -10,8 +10,7 @@ var api = builder.AddProject<Projects.AIFileAnalizator_Api>("aifileanalizator-ap
       .WithReference(qdrant)
        .WaitFor(qdrant); 
 
-builder.AddExecutable("frontend", "npm", "../frontend", "start" )
-    .WithHttpEndpoint(name: "http", port: 5173)
+builder.AddNpmApp("frontend", "../frontend")
     .WaitFor(api);
 
 
