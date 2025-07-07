@@ -16,9 +16,9 @@ public class RagService : IRagService
     private readonly string _modelName;
     private HttpClient _httpClient;
 
-    public RagService(IOptions<QdrantOptions> options, HttpClient httpClient)
-    {
-        _qdrantClient = new QdrantClient(options.Value.Host, options.Value.Port);
+    public RagService(IOptions<QdrantOptions> options, HttpClient httpClient, QdrantClient client)
+    {          
+        _qdrantClient = client;
         _collectionName = options.Value.CollectionName;
         _embeddingName = options.Value.EmbeddingModelName;
         _modelName = options.Value.Model;

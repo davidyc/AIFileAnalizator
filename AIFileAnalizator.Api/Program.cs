@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<OllamaOptions>(builder.Configuration.GetSection("Ollama"));
 builder.Services.Configure<QdrantOptions>(builder.Configuration.GetSection("Qdrant"));
+builder.AddQdrantClient("qdrant");
 
 builder.Services.AddCors(options =>
 {
