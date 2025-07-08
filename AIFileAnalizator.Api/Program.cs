@@ -30,16 +30,16 @@ var app = builder.Build();
 app.UseCors();
 
 
-app.MapPost("/ask", async (AskRequest request, IOllamaService ollamaService) =>
+app.MapPost("/generate/ask", async (AskRequest request, IOllamaService ollamaService) =>
 {
-    var result = await ollamaService.AskAsync(request.Prompt);                                                                   
+    var result = await ollamaService.GenerateAsync(request.Prompt);                                                                   
     if (string.IsNullOrEmpty(result))     
         return Results.Problem("Ollama не вернул ответ.");     
     return Results.Ok(new { response = result });
 });
 
 
-app.MapPost("/upload", async (HttpRequest request, IOllamaService ollamaService) =>
+app.MapPost("/generate/upload", async (HttpRequest request, IOllamaService ollamaService) =>
 {
     var file = request.Form.Files.FirstOrDefault();
     if (file == null || file.Length == 0)
@@ -60,25 +60,35 @@ app.MapPost("/upload", async (HttpRequest request, IOllamaService ollamaService)
         {fileContent}         
         """;
 
-    var response = await ollamaService.AskAsync(fullPrompt);
+    var response = await ollamaService.GenerateAsync(fullPrompt);
     return Results.Ok(new { response });
 })
 .Accepts<IFormFile>("multipart/form-data");
 
+app.MapPost("/chat/ask", async (AskChatRequest request, IOllamaService ollamaService) =>
+{
+    var result = await ollamaService.ChatAsync(request.Messages);
 
-app.MapPost("/rag/ask", async (AskRequest request, IRagService service) =>
+if (result == null)
+        return Results.Problem("Ollama не вернул ответ.");
+
+    return Results.Ok(new { response = result });
+});
+
+
+app.MapPost("/rag/generate/ask", async (AskRequest request, IRagService service) =>
 {
     var response = await service.AskWithContextAsync(request.Prompt);
     return Results.Ok(new { response });
 });
 
-app.MapPost("/rag/chunk", async (ChunkRequest request, IRagService service) =>
+app.MapPost("/rag/generate/chunk", async (ChunkRequest request, IRagService service) =>
 {
     await service.UploadChunkAsync(request.Text, request.Id);
     return Results.Ok(new { status = "Chunk uploaded" });
 });
 
-app.MapPost("/rag/upload", async (HttpRequest request, IRagService ragService) =>
+app.MapPost("/rag/generate/upload", async (HttpRequest request, IRagService ragService) =>
 {
     var form = await request.ReadFormAsync();
     var file = form.Files.GetFile("file");
@@ -96,4 +106,5 @@ app.MapPost("/rag/upload", async (HttpRequest request, IRagService ragService) =
         return Results.Problem(ex.Message);
     }
 });
+
 app.Run();

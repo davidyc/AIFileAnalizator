@@ -1,7 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Chat from './pages/Chat';
-import RagChat from './components/RagChat';
+import RagGenerate from './components/RagGenerate';
+import OllamaGenerate from './components/OllamaGenerate';
 import Header from './components/Header';
 
 function App() {
@@ -10,7 +11,8 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Chat />} />
-        <Route path="Rag" element={<RagChat />} />
+        <Route path="/generate" element={<OllamaGenerate />} />
+        <Route path="Rag" element={<RagGenerate />} />
       </Routes>
     </Router>
   );

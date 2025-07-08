@@ -1,5 +1,9 @@
-﻿namespace AIFileAnalizator.Api.Services.Interfaces;
+﻿using AIFileAnalizator.Api.Dto.Request;
+using AIFileAnalizator.Api.Dto.Response;
+
+namespace AIFileAnalizator.Api.Services.Interfaces;
 public interface IOllamaService
 {
-    Task<string?> AskAsync(string prompt);
+    Task<string?> GenerateAsync(string prompt);
+    Task<MessageContent?> ChatAsync(IEnumerable<ChatMessage> messages);
 }

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { API_BASE } from './config';
 
-const RagChat = () => {
+const RagGenerate = () => {
   const [text, setText] = useState('');
   const [chunkId, setChunkId] = useState('');
   const [messages, setMessages] = useState([]);
@@ -20,7 +20,7 @@ const RagChat = () => {
       setMessages((prev) => [...prev, userMessage]);
 
       try {
-        const res = await fetch(`${API_BASE}/rag/ask`, {
+        const res = await fetch(`${API_BASE}/rag/generate/ask`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: text }),
@@ -38,7 +38,7 @@ const RagChat = () => {
       }
     } else {
       try {
-        const res = await fetch(`${API_BASE}/rag/chunk`, {
+        const res = await fetch(`${API_BASE}/rag/generate/chunk`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text, id: chunkId || null }),
@@ -73,7 +73,7 @@ const RagChat = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch(`${API_BASE}/rag/upload`, {
+      const res = await fetch(`${API_BASE}/rag/generate/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -95,7 +95,7 @@ const RagChat = () => {
 
   return (
     <div className="chat-container">
-      <h2>🤖 Ollama Chat RAG</h2>
+      <h2>🤖 Ollama Generate RAG</h2>
       <div className="chat-window">
         {messages.map((msg, index) => (
           <div
@@ -178,4 +178,4 @@ const RagChat = () => {
   );
 };
 
-export default RagChat;
+export default RagGenerate;

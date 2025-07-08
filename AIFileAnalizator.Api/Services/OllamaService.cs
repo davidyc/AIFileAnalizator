@@ -1,4 +1,5 @@
 ﻿using AIFileAnalizator.Api.Dto;
+using AIFileAnalizator.Api.Dto.Request;
 using AIFileAnalizator.Api.Dto.Response;
 using AIFileAnalizator.Api.Options;
 using AIFileAnalizator.Api.Services.Interfaces;
@@ -18,7 +19,7 @@ public class OllamaService : IOllamaService
         _options = options.Value;
     }
 
-    public async Task<string?> AskAsync(string prompt)
+    public async Task<string?> GenerateAsync(string prompt)
     {
         var payload = new
         {
@@ -37,4 +38,28 @@ public class OllamaService : IOllamaService
         var content = await response.Content.ReadFromJsonAsync<OllamaResponse>();
         return content?.Response;
     }
+    public async Task<MessageContent?> ChatAsync(IEnumerable<ChatMessage> messages)
+    {
+        var payload = new
+        {
+            model = _options.Model,
+            messages = messages.Select(m => new
+            {
+                role = m.Role,
+                content = m.Content
+            }),
+            stream = false
+        };
+
+        var response = await _httpClient.PostAsJsonAsync($"{_options.BaseUrl}/api/chat", payload);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        var content = await response.Content.ReadFromJsonAsync<OllamaChatResponse>();
+        return content?.Message;
+    }
+
 }

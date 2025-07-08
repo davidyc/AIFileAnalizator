@@ -9,6 +9,9 @@ function Header() {
         <Link to="/" className="nav-link">
           Chat
         </Link>
+        <Link to="/generate" className="nav-link">
+          Generate
+        </Link>
         <Link to="/rag" className="nav-link">
           Rag
         </Link>
