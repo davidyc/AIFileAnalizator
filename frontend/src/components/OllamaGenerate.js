@@ -50,6 +50,13 @@ function OllamaGenerate() {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendPrompt();
+    }
+  };
+
   const uploadFile = async () => {
     const file = fileInputRef.current?.files[0];
     if (!file) return;
@@ -103,13 +110,20 @@ function OllamaGenerate() {
               msg.role === 'user' ? 'user' : 'response'
             }`}
           >
-            <strong>{msg.role === 'user' ? 'Вы:' : 'AI:'}</strong> {msg.content}
+            <div className="icon">{msg.role === 'user' ? '👤' : '🤖'}</div>
+            <div className="content">
+              <strong>{msg.role === 'user' ? 'Вы:' : 'AI:'}</strong>{' '}
+              {msg.content}
+            </div>
           </div>
         ))}
 
         {loading && (
           <div className="chat-bubble response">
-            <em>AI печатает...</em>
+            <div className="icon">🤖</div>
+            <div className="content">
+              <em>AI печатает...</em>
+            </div>
           </div>
         )}
 
@@ -120,10 +134,12 @@ function OllamaGenerate() {
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Введите запрос или описание файла..."
+          onKeyPress={handleKeyPress}
+          placeholder="Введите запрос или описание файла... (Enter для отправки)"
+          disabled={loading}
         />
-        <button onClick={sendPrompt} disabled={loading}>
-          Отправить
+        <button onClick={sendPrompt} disabled={loading || !prompt.trim()}>
+          📤 Отправить
         </button>
         <input
           type="file"

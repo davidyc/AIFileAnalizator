@@ -59,6 +59,13 @@ const RagGenerate = () => {
     setLoading(false);
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   const handleFileUpload = async () => {
     const file = fileInputRef.current?.files?.[0];
     if (!file) return;
@@ -104,12 +111,18 @@ const RagGenerate = () => {
               msg.type === 'user' ? 'user' : 'response'
             }`}
           >
-            {msg.text}
+            <div className="icon">{msg.type === 'user' ? '👤' : '🤖'}</div>
+            <div className="content">
+              <strong>{msg.type === 'user' ? 'Вы:' : 'AI:'}</strong> {msg.text}
+            </div>
           </div>
         ))}
         {loading && (
           <div className="chat-bubble response">
-            <em>AI печатает...</em>
+            <div className="icon">🤖</div>
+            <div className="content">
+              <em>AI печатает...</em>
+            </div>
           </div>
         )}
       </div>
@@ -117,14 +130,17 @@ const RagGenerate = () => {
       <div className="input-area">
         <textarea
           placeholder={
-            askMode ? 'Введите вопрос...' : 'Введите текст для загрузки...'
+            askMode
+              ? 'Введите вопрос... (Enter для отправки)'
+              : 'Введите текст для загрузки... (Enter для отправки)'
           }
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onKeyPress={handleKeyPress}
           disabled={loading}
         />
         <button onClick={handleSend} disabled={loading || !text.trim()}>
-          {askMode ? 'Спросить' : 'Загрузить'}
+          📤 {askMode ? 'Спросить' : 'Загрузить'}
         </button>
 
         {/* Кнопка 📎 только в режиме загрузки */}

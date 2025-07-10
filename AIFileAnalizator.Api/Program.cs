@@ -32,8 +32,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Remove AddHttpClient if not needed elsewhere
-// builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IOllamaService, OllamaService>();
 builder.Services.AddSingleton<IRagService, RagService>();
 builder.Services.AddControllers();  

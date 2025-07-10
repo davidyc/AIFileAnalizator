@@ -1,5 +1,5 @@
 .chat-container {
-  max-width: 600px;
+  max-width: 75%;
   margin: 40px auto;
   padding: 1rem;
   border: 1px solid #ccc;
@@ -30,6 +30,19 @@
   line-height: 1.5;
   max-width: 80%;
   white-space: pre-wrap;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.chat-bubble .icon {
+  font-size: 1.2rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+}
+
+.chat-bubble .content {
+  flex: 1;
 }
 
 .chat-bubble.user {
@@ -67,6 +80,9 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .input-area button:hover {
