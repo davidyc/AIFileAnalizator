@@ -5,6 +5,8 @@ using AIFileAnalizator.Api.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Embeddings;
 
 namespace AIFileAnalizator.Api.Services;
 
@@ -14,15 +16,15 @@ public class RagService : IRagService
     private readonly string _collectionName;
     private readonly string _embeddingName;
     private readonly string _modelName;
-    private HttpClient _httpClient;
+    private readonly Kernel _kernel;
 
-    public RagService(IOptions<QdrantOptions> options, HttpClient httpClient, QdrantClient client)
+    public RagService(IOptions<QdrantOptions> options, Kernel kernel, QdrantClient client)
     {          
         _qdrantClient = client;
         _collectionName = options.Value.CollectionName;
         _embeddingName = options.Value.EmbeddingModelName;
         _modelName = options.Value.Model;
-        _httpClient = httpClient;
+        _kernel = kernel;
     }
 
     public async Task UploadChunkAsync(string text, string? optionalId = null)
@@ -73,15 +75,8 @@ public class RagService : IRagService
         Ответ:
         """;
 
-        var response = await _httpClient.PostAsJsonAsync("http://localhost:11434/api/generate", new
-        {
-            model = _modelName,
-            prompt = fullPrompt,
-            stream = false
-        });
-
-        var json = await response.Content.ReadFromJsonAsync<JsonElement>();
-        return json.GetProperty("response").GetString();
+        var response = await _kernel.InvokePromptAsync(fullPrompt);
+        return response?.ToString() ?? string.Empty;
     }
 
     public async Task UploadFileAsync(IFormFile file)
@@ -98,19 +93,9 @@ public class RagService : IRagService
 
     private async Task<float[]> GetEmbeddingAsync(string text)
     {
-        var response = await _httpClient.PostAsJsonAsync("http://localhost:11434/api/embeddings", new
-        {
-            model = _embeddingName,
-            prompt = text
-        });
-
-        var json = await response.Content.ReadAsStringAsync();
-        using var doc = JsonDocument.Parse(json);
-
-        return doc.RootElement.GetProperty("embedding")
-            .EnumerateArray()
-            .Select(e => e.GetSingle())
-            .ToArray();
+        var embeddingService = _kernel.GetRequiredService<ITextEmbeddingGenerationService>();
+        var embedding = await embeddingService.GenerateEmbeddingAsync(text, _kernel);
+        return embedding.ToArray();
     }
 
     private async Task EnsureCollectionExistsAsync()

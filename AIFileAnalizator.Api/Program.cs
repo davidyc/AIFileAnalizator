@@ -15,6 +15,10 @@ builder.Services
     .AddOllamaChatCompletion(
         modelId: builder.Configuration["Ollama:Model"] ?? "llama3",
         endpoint: new Uri(builder.Configuration["Ollama:BaseUrl"] ?? "http://localhost:11434")
+    )
+    .AddOllamaTextEmbeddingGeneration(
+        modelId: builder.Configuration["Qdrant:EmbeddingModelName"] ?? "nomic-embed-text",
+        endpoint: new Uri(builder.Configuration["Ollama:BaseUrl"] ?? "http://localhost:11434")
     );
 
 builder.Services.AddCors(options =>
@@ -28,12 +32,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-builder.Services.AddHttpClient();
+// Remove AddHttpClient if not needed elsewhere
+// builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IOllamaService, OllamaService>();
 builder.Services.AddSingleton<IRagService, RagService>();
 builder.Services.AddControllers();  
-
 
 var app = builder.Build();
 app.UseCors();
