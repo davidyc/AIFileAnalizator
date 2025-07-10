@@ -5,61 +5,43 @@ using AIFileAnalizator.Api.Options;
 using AIFileAnalizator.Api.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace AIFileAnalizator.Api.Services;
 
 public class OllamaService : IOllamaService
 {
-    private readonly HttpClient _httpClient;
-    private readonly OllamaOptions _options;
+    private readonly Kernel _kernel;
 
-    public OllamaService(HttpClient httpClient, IOptions<OllamaOptions> options)
+    public OllamaService(Kernel kernel)
     {
-        _httpClient = httpClient;
-        _options = options.Value;
+        _kernel = kernel;
     }
 
     public async Task<string?> GenerateAsync(string prompt)
     {
-        var payload = new
-        {
-            model = _options.Model,
-            prompt,
-            stream = false
-        };
-
-        var response = await _httpClient.PostAsJsonAsync($"{_options.BaseUrl}/api/generate", payload);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return null;
-        }
-
-        var content = await response.Content.ReadFromJsonAsync<OllamaResponse>();
-        return content?.Response;
+        // Use Kernel to generate text from a prompt
+        var result = await _kernel.InvokePromptAsync(prompt);
+        return result?.ToString();
     }
+
     public async Task<MessageContent?> ChatAsync(IEnumerable<ChatMessage> messages)
     {
-        var payload = new
+        // Use Kernel's chat completion service
+        var chatService = _kernel.GetRequiredService<IChatCompletionService>();
+        var chatHistory = new ChatHistory();
+        foreach (var msg in messages)
         {
-            model = _options.Model,
-            messages = messages.Select(m => new
-            {
-                role = m.Role,
-                content = m.Content
-            }),
-            stream = false
-        };
-
-        var response = await _httpClient.PostAsJsonAsync($"{_options.BaseUrl}/api/chat", payload);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return null;
+            if (msg.Role == "user")
+                chatHistory.AddUserMessage(msg.Content);
+            else if (msg.Role == "assistant" || msg.Role == "ai")
+                chatHistory.AddAssistantMessage(msg.Content);
+            else
+                chatHistory.AddMessage(new AuthorRole(msg.Role), msg.Content);
         }
-
-        var content = await response.Content.ReadFromJsonAsync<OllamaChatResponse>();
-        return content?.Message;
+        var result = await chatService.GetChatMessageContentAsync(chatHistory, kernel: _kernel);
+        if (result == null) return null;
+        return new MessageContent(result.Role.ToString().ToLower(), result.Content);
     }
-
 }

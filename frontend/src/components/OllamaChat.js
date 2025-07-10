@@ -42,8 +42,7 @@ function OllamaChat() {
       }
 
       const data = await res.json();
-      const aiMessage = data.response; // { role, content }
-
+      const aiMessage = data.response; 
       setMessages((prev) => [...prev, aiMessage]);
     } catch (err) {
       console.error(err);

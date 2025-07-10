@@ -1,13 +1,21 @@
-using AIFileAnalizator.Api.Dto.Request;
 using AIFileAnalizator.Api.Services.Interfaces;
 using AIFileAnalizator.Api.Services;
 using AIFileAnalizator.Api.Options;
+using Microsoft.SemanticKernel.Connectors.Ollama;
+using Microsoft.SemanticKernel;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<OllamaOptions>(builder.Configuration.GetSection("Ollama"));
 builder.Services.Configure<QdrantOptions>(builder.Configuration.GetSection("Qdrant"));
 builder.AddQdrantClient("qdrant");
+
+builder.Services
+    .AddKernel()
+    .AddOllamaChatCompletion(
+        modelId: builder.Configuration["Ollama:Model"] ?? "llama3",
+        endpoint: new Uri(builder.Configuration["Ollama:BaseUrl"] ?? "http://localhost:11434")
+    );
 
 builder.Services.AddCors(options =>
 {
@@ -22,89 +30,12 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddHttpClient();
-builder.Services.AddHttpClient<IOllamaService, OllamaService>();
+builder.Services.AddSingleton<IOllamaService, OllamaService>();
 builder.Services.AddSingleton<IRagService, RagService>();
+builder.Services.AddControllers();  
+
+
 var app = builder.Build();
-
-
 app.UseCors();
-
-
-app.MapPost("/generate/ask", async (AskRequest request, IOllamaService ollamaService) =>
-{
-    var result = await ollamaService.GenerateAsync(request.Prompt);                                                                   
-    if (string.IsNullOrEmpty(result))     
-        return Results.Problem("Ollama не вернул ответ.");     
-    return Results.Ok(new { response = result });
-});
-
-
-app.MapPost("/generate/upload", async (HttpRequest request, IOllamaService ollamaService) =>
-{
-    var file = request.Form.Files.FirstOrDefault();
-    if (file == null || file.Length == 0)
-        return Results.BadRequest("Файл не загружен.");
-
-    var prompt = request.Form["prompt"].ToString();
-    if (string.IsNullOrWhiteSpace(prompt))
-        return Results.BadRequest("Промпт пустой.");
-
-    using var reader = new StreamReader(file.OpenReadStream());
-    var fileContent = await reader.ReadToEndAsync();
-
-    var fullPrompt = $"""
-        {prompt}
-
-        Вот содержимое файла:
-        ---
-        {fileContent}         
-        """;
-
-    var response = await ollamaService.GenerateAsync(fullPrompt);
-    return Results.Ok(new { response });
-})
-.Accepts<IFormFile>("multipart/form-data");
-
-app.MapPost("/chat/ask", async (AskChatRequest request, IOllamaService ollamaService) =>
-{
-    var result = await ollamaService.ChatAsync(request.Messages);
-
-if (result == null)
-        return Results.Problem("Ollama не вернул ответ.");
-
-    return Results.Ok(new { response = result });
-});
-
-
-app.MapPost("/rag/generate/ask", async (AskRequest request, IRagService service) =>
-{
-    var response = await service.AskWithContextAsync(request.Prompt);
-    return Results.Ok(new { response });
-});
-
-app.MapPost("/rag/generate/chunk", async (ChunkRequest request, IRagService service) =>
-{
-    await service.UploadChunkAsync(request.Text, request.Id);
-    return Results.Ok(new { status = "Chunk uploaded" });
-});
-
-app.MapPost("/rag/generate/upload", async (HttpRequest request, IRagService ragService) =>
-{
-    var form = await request.ReadFormAsync();
-    var file = form.Files.GetFile("file");
-
-    if (file is null)
-        return Results.BadRequest("Файл не был предоставлен.");
-
-    try
-    {
-        await ragService.UploadFileAsync(file);
-        return Results.Ok(new { message = "Файл успешно загружен в контекст." });
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem(ex.Message);
-    }
-});
-
+app.MapControllers();
 app.Run();
